@@ -165,6 +165,23 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div className="space-y-1.5 bg-[#090a0f] p-3 rounded-xl border border-gray-800">
+              <label className="font-semibold text-purple-400 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5" /> Max Doom Scrolling Limit (Minutes)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="180"
+                value={formData.maxScrollingTargetMinutes ?? 30}
+                onChange={(e) => setFormData({ ...formData, maxScrollingTargetMinutes: parseInt(e.target.value) || 0 })}
+                className="w-full bg-[#12141c] border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-sky-500"
+              />
+              <p className="text-[10px] text-gray-500">
+                ≤ Limit: 10 pts • ≤ 1.5x Limit: 5 pts • Over: 0 pts
+              </p>
+            </div>
+
+            <div className="space-y-1.5 bg-[#090a0f] p-3 rounded-xl border border-gray-800">
               <label className="font-semibold text-amber-400 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" /> Daily Gaming Target (Minutes)
               </label>
@@ -194,7 +211,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 onChange={(e) => setFormData({ ...formData, deepWorkTargetHours: parseFloat(e.target.value) || 0 })}
                 className="w-full bg-[#12141c] border border-gray-800 rounded-lg px-3 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-sky-500"
               />
-              <p className="text-[10px] text-gray-500">Proportional 10 pts max score calculation.</p>
+              <p className="text-[10px] text-gray-500">Earn bonus points by exceeding your target!</p>
             </div>
 
             <div className="space-y-1.5 bg-[#090a0f] p-3 rounded-xl border border-gray-800">

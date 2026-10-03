@@ -26,8 +26,17 @@ export function calculateScoreBreakdown(
   
   const physicalTotal = workoutPts + movementPts + nutritionPts + waterPts + sleepPts;
 
-  // Mental & Discipline (35 pts max)
-  const scrollingPts = record.scrollingControlled ? 10 : 0;
+  // Mental & Discipline (35 pts max base)
+  const maxScrollingTarget = settings.maxScrollingTargetMinutes ?? 30;
+  const scrollingMins = record.scrollingMinutes ?? (record.scrollingControlled ? 0 : 60);
+  let scrollingPts = 0;
+  if (scrollingMins <= maxScrollingTarget) {
+    scrollingPts = 10; // Full 10 points if within allowed limit
+  } else if (scrollingMins <= maxScrollingTarget * 1.5) {
+    scrollingPts = 5; // Partial score if slightly over limit
+  } else {
+    scrollingPts = 0; // Exceeded limit significantly
+  }
   
   // Gaming score: configurable target, partial scoring
   const gamingTarget = settings.gamingTargetMinutes ?? 60;
@@ -47,13 +56,20 @@ export function calculateScoreBreakdown(
 
   const mentalTotal = scrollingPts + gamingPts + meditationPts + readingPts + promisesPts;
 
-  // Learning / Career (35 pts max)
+  // Learning / Career (35 pts max base, extra bonus points for exceeding deep work target!)
   const deepWorkPts = record.deepWork ? 20 : 0;
   const deepWorkTarget = settings.deepWorkTargetHours || 4;
   const deepWorkHrs = record.deepWorkHours || 0;
-  const deepWorkHoursPts = deepWorkHrs >= deepWorkTarget 
-    ? 10 
-    : Math.round(Math.min(10, (deepWorkHrs / deepWorkTarget) * 10) * 10) / 10;
+
+  let deepWorkHoursPts = 0;
+  if (deepWorkHrs >= deepWorkTarget) {
+    // Base 10 pts for meeting target + bonus points for extra hours!
+    const extraHrs = deepWorkHrs - deepWorkTarget;
+    const bonusPts = (extraHrs / deepWorkTarget) * 10;
+    deepWorkHoursPts = Math.round((10 + bonusPts) * 10) / 10;
+  } else {
+    deepWorkHoursPts = Math.round((deepWorkHrs / deepWorkTarget) * 10 * 10) / 10;
+  }
   
   const hasLearningText = Boolean(record.learning && record.learning.trim().length > 0);
   const learningDonePts = hasLearningText ? 5 : 0;

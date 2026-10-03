@@ -42,6 +42,7 @@ export interface DailyRecord {
 
   // Mental & Discipline (35 pts max)
   scrollingControlled: boolean;
+  scrollingMinutes?: number; // Doom scrolling duration in minutes
   gamingMinutes: number;
   meditation: boolean;
   reading: boolean;
@@ -66,6 +67,7 @@ export interface DailyRecord {
 
 export interface UserSettings {
   startDate: string; // YYYY-MM-DD
+  maxScrollingTargetMinutes?: number; // default: 30 min max
   gamingTargetMinutes: number; // default: 60 min
   deepWorkTargetHours: number; // default: 4 hrs
   readingTargetMinutes: number; // default: 30 min

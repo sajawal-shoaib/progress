@@ -45,7 +45,9 @@ export const TodayCheckInView: React.FC<TodayCheckInViewProps> = ({
   const [sleepHours, setSleepHours] = useState<number>(existingRecord?.sleepHours ?? 7.5);
   const [weight, setWeight] = useState<string>(existingRecord?.weight !== undefined ? String(existingRecord.weight) : '');
 
-  const [scrollingControlled, setScrollingControlled] = useState<boolean>(existingRecord?.scrollingControlled ?? true);
+  const [scrollingMinutes, setScrollingMinutes] = useState<number>(
+    existingRecord?.scrollingMinutes ?? (existingRecord?.scrollingControlled === false ? 60 : 15)
+  );
   const [gamingMinutes, setGamingMinutes] = useState<number>(existingRecord?.gamingMinutes ?? 30);
   const [meditation, setMeditation] = useState<boolean>(existingRecord?.meditation ?? true);
   const [reading, setReading] = useState<boolean>(existingRecord?.reading ?? true);
@@ -62,6 +64,9 @@ export const TodayCheckInView: React.FC<TodayCheckInViewProps> = ({
 
   const [isSaved, setIsSaved] = useState<boolean>(false);
 
+  const maxScrollingTarget = settings.maxScrollingTargetMinutes ?? 30;
+  const isScrollingWithinLimit = scrollingMinutes <= maxScrollingTarget;
+
   // Compute live breakdown
   const currentRecordInput = {
     date: targetDate,
@@ -71,7 +76,8 @@ export const TodayCheckInView: React.FC<TodayCheckInViewProps> = ({
     water,
     sleepHours: Number(sleepHours),
     weight: weight !== '' ? Number(weight) : undefined,
-    scrollingControlled,
+    scrollingControlled: isScrollingWithinLimit,
+    scrollingMinutes: Number(scrollingMinutes),
     gamingMinutes: Number(gamingMinutes),
     meditation,
     reading,
@@ -298,12 +304,54 @@ export const TodayCheckInView: React.FC<TodayCheckInViewProps> = ({
           </div>
 
           <div className="space-y-3">
-            <ToggleButton
-              label="Scrolling Controlled"
-              subtext="10 pts — No social media rabbit holes"
-              value={scrollingControlled}
-              onChange={setScrollingControlled}
-            />
+            {/* Doom Scrolling Duration Slider */}
+            <div className="p-3 rounded-xl bg-[#090a0f] border border-gray-800/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-purple-400" /> Doom Scrolling Duration
+                </label>
+                <span className="text-xs font-mono text-purple-400">
+                  {scrollingMinutes} mins (Limit: ≤{maxScrollingTarget}m)
+                </span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="180"
+                step="5"
+                value={scrollingMinutes}
+                onChange={(e) => setScrollingMinutes(parseInt(e.target.value) || 0)}
+                className="w-full accent-purple-400 cursor-pointer"
+              />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  {[0, 15, 30, 45, 60, 90].map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setScrollingMinutes(m)}
+                      className={`px-2 py-0.5 text-[10px] rounded font-mono cursor-pointer transition-all ${
+                        scrollingMinutes === m
+                          ? 'bg-purple-600 text-white font-bold'
+                          : 'bg-gray-800 text-gray-400 hover:text-gray-200'
+                      }`}
+                    >
+                      {m}m
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[10px] font-mono text-gray-400">
+                  Earned: {breakdown.mental.scrolling}/10 pts
+                </span>
+              </div>
+              <p className="text-[10px] text-gray-500">
+                {scrollingMinutes <= maxScrollingTarget
+                  ? '⚡ Full 10 pts! Controlled scrolling limits.'
+                  : scrollingMinutes <= maxScrollingTarget * 1.5
+                  ? '⚠️ Partial 5 pts. Exceeded daily target limit.'
+                  : '❌ 0 pts. Excessive doom scrolling today.'}
+              </p>
+            </div>
 
             {/* Gaming Time with partial scoring */}
             <div className="p-3 rounded-xl bg-[#090a0f] border border-gray-800/80 space-y-2">
@@ -384,7 +432,7 @@ export const TodayCheckInView: React.FC<TodayCheckInViewProps> = ({
             <div className="p-3 rounded-xl bg-[#090a0f] border border-gray-800/80 space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-gray-200">
-                  Deep Work Hours ({breakdown.learning.deepWorkHours}/10 pts)
+                  Deep Work Hours ({breakdown.learning.deepWorkHours} pts {deepWorkHours > (settings.deepWorkTargetHours || 4) ? '🔥 +BONUS!' : '/ 10 pts'})
                 </label>
                 <span className="text-xs font-mono text-emerald-400">{deepWorkHours} Hrs (Target: {settings.deepWorkTargetHours || 4}h)</span>
               </div>
