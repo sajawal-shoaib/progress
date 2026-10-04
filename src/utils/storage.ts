@@ -17,11 +17,34 @@ export const DEFAULT_SETTINGS: UserSettings = {
   theme: 'dark',
 };
 
+/**
+ * Returns the earliest date key found in stored records, or today's date.
+ * Used to auto-detect startDate when settings have never been explicitly saved.
+ */
+function detectEarliestRecordDate(): string {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.RECORDS);
+    if (!raw) return new Date().toISOString().split('T')[0];
+    const records = JSON.parse(raw) as Record<string, unknown>;
+    const dates = Object.keys(records).sort();
+    return dates.length > 0 ? dates[0] : new Date().toISOString().split('T')[0];
+  } catch {
+    return new Date().toISOString().split('T')[0];
+  }
+}
+
 export function getStoredSettings(): UserSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    if (!raw) return DEFAULT_SETTINGS;
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    if (!raw) {
+      // No settings saved yet — auto-detect startDate from earliest record
+      return {
+        ...DEFAULT_SETTINGS,
+        startDate: detectEarliestRecordDate(),
+      };
+    }
+    const parsed = JSON.parse(raw) as Partial<UserSettings>;
+    return { ...DEFAULT_SETTINGS, ...parsed };
   } catch (err) {
     console.error('Error loading settings from localStorage:', err);
     return DEFAULT_SETTINGS;
@@ -71,6 +94,22 @@ export function saveDailyRecord(
 
   records[recordInput.date] = updatedRecord;
   saveStoredRecords(records);
+
+  // Auto-save settings if not yet persisted, so startDate is locked-in correctly.
+  // Use the earliest date between the record being saved and current startDate.
+  const settingsRaw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+  if (!settingsRaw) {
+    // First-time save — persist settings with the record's date as startDate
+    const newStartDate = recordInput.date < settings.startDate ? recordInput.date : settings.startDate;
+    saveStoredSettings({ ...settings, startDate: newStartDate });
+  } else {
+    // Settings exist — ensure startDate never drifts later than the earliest record
+    const saved = JSON.parse(settingsRaw) as UserSettings;
+    if (recordInput.date < saved.startDate) {
+      saveStoredSettings({ ...saved, startDate: recordInput.date });
+    }
+  }
+
   return updatedRecord;
 }
 
