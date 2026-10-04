@@ -3,7 +3,7 @@ import { computeDailyRecordScore } from './scoreCalculator';
 
 /**
  * Calculates current streak and longest streak.
- * A day is successful if score >= 70.
+ * A day is successful if score >= 65.
  * Overall 90-day progress is based on total days elapsed / recorded, NEVER reset!
  */
 export function calculateStreaks(records: Record<string, DailyRecord>, startDateStr: string) {
@@ -29,7 +29,7 @@ export function calculateStreaks(records: Record<string, DailyRecord>, startDate
     const dateStr = curr.toISOString().split('T')[0];
     const rec = records[dateStr];
     
-    if (rec && rec.score >= 70) {
+    if (rec && rec.score >= 65) {
       tempStreak++;
       totalSuccessfulDays++;
       if (tempStreak > longestStreak) {
@@ -48,20 +48,20 @@ export function calculateStreaks(records: Record<string, DailyRecord>, startDate
   const yesterdayStr = yesterday.toISOString().split('T')[0];
 
   let streakCheckDate = today;
-  if (!records[todayStr] || records[todayStr].score < 70) {
-    if (records[yesterdayStr] && records[yesterdayStr].score >= 70) {
+  if (!records[todayStr] || records[todayStr].score < 65) {
+    if (records[yesterdayStr] && records[yesterdayStr].score >= 65) {
       streakCheckDate = yesterday;
     } else {
       currentStreak = 0;
     }
   }
 
-  if (records[streakCheckDate.toISOString().split('T')[0]]?.score >= 70) {
+  if (records[streakCheckDate.toISOString().split('T')[0]]?.score >= 65) {
     let count = 0;
     let check = new Date(streakCheckDate);
     while (true) {
       const dStr = check.toISOString().split('T')[0];
-      if (records[dStr] && records[dStr].score >= 70) {
+      if (records[dStr] && records[dStr].score >= 65) {
         count++;
         check.setDate(check.getDate() - 1);
       } else {
@@ -160,7 +160,7 @@ export function calculateWeeklyReviews(
       if (r.scrollingControlled) scrollingControlledDays++;
       if (r.promisesKept) promisesDays++;
       if (r.meditation) meditationDays++;
-      if (r.score >= 70) successfulDays++;
+      if (r.score >= 65) successfulDays++;
     });
 
     const avgScore = recordedDays > 0 ? Math.round(weeklyScoreSum / recordedDays) : 0;
@@ -273,7 +273,7 @@ export function calculateMilestones(
     const scrolling = cpRecords.filter((r) => r.scrollingControlled).length;
     const deepWorkHrs = cpRecords.reduce((a, b) => a + (b.deepWorkHours || 0), 0);
     const reading = cpRecords.filter((r) => r.reading).length;
-    const successful = cpRecords.filter((r) => r.score >= 70).length;
+    const successful = cpRecords.filter((r) => r.score >= 65).length;
 
     // Weight logic
     const weightedRecords = cpRecords.filter((r) => r.weight !== undefined && r.weight > 0);

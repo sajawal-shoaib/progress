@@ -1,10 +1,11 @@
 import { DailyRecord, ScoreBreakdown, DailyStatusLabel, UserSettings } from '../types/winterArc';
 
 export function calculateDailyStatus(score: number): DailyStatusLabel {
-  if (score >= 85) return 'Strong Day';
-  if (score >= 70) return 'Good Day';
-  if (score >= 50) return 'Weak Day';
-  return 'Bad Day';
+  if (score >= 90) return 'Strong Day';
+  if (score >= 85) return 'Good Day';
+  if (score >= 75) return 'Weak Day';
+  if (score >= 65) return 'Bad Day';
+  return 'Not Recorded';
 }
 
 export function calculateScoreBreakdown(

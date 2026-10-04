@@ -57,19 +57,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         <div className="flex flex-wrap items-center gap-3 bg-[#090a0f] p-3 rounded-xl border border-gray-800/80 text-xs">
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-emerald-500 shadow-sm" />
-            <span className="text-gray-300">Strong (85-100)</span>
+            <span className="text-gray-300">Strong (90-100)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-sky-500 shadow-sm" />
-            <span className="text-gray-300">Good (70-84)</span>
+            <span className="text-gray-300">Good (85-89)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-amber-500 shadow-sm" />
-            <span className="text-gray-300">Weak (50-69)</span>
+            <span className="text-gray-300">Weak (75-84)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-rose-500 shadow-sm" />
-            <span className="text-gray-300">Bad (0-49)</span>
+            <span className="text-gray-300">Bad (65-74)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-gray-800 border border-gray-700" />
@@ -86,14 +86,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
             let tileBg = 'bg-[#090a0f] border-gray-800 text-gray-500 hover:border-gray-700';
             if (record) {
-              if (record.score >= 85) {
+              if (record.score >= 90) {
                 tileBg = 'bg-emerald-950/80 border-emerald-600/70 text-emerald-300 shadow-emerald-950/30 hover:border-emerald-400';
-              } else if (record.score >= 70) {
+              } else if (record.score >= 85) {
                 tileBg = 'bg-sky-950/80 border-sky-600/70 text-sky-300 shadow-sky-950/30 hover:border-sky-400';
-              } else if (record.score >= 50) {
+              } else if (record.score >= 75) {
                 tileBg = 'bg-amber-950/80 border-amber-600/70 text-amber-300 shadow-amber-950/30 hover:border-amber-400';
-              } else {
+              } else if (record.score >= 65) {
                 tileBg = 'bg-rose-950/80 border-rose-600/70 text-rose-300 shadow-rose-950/30 hover:border-rose-400';
+              } else {
+                tileBg = 'bg-gray-900/80 border-gray-700/70 text-gray-500 hover:border-gray-600';
               }
             }
 

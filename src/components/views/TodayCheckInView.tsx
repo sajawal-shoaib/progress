@@ -202,9 +202,9 @@ export const TodayCheckInView: React.FC<TodayCheckInViewProps> = ({
             </div>
 
             <p className="text-[11px] text-gray-400 italic">
-              {breakdown.totalScore >= 85 && "💪 Strong Day! Peak discipline & consistency."}
-              {breakdown.totalScore >= 70 && breakdown.totalScore < 85 && "⚡ Good Day! Solid progress made today."}
-              {breakdown.totalScore >= 50 && breakdown.totalScore < 70 && "⚠️ Weak Day. Refocus tomorrow for a strong response."}
+              {breakdown.totalScore >= 90 && "💪 Strong Day! Peak discipline & consistency."}
+              {breakdown.totalScore >= 85 && breakdown.totalScore < 90 && "⚡ Good Day! Solid progress made today."}
+              {breakdown.totalScore >= 75 && breakdown.totalScore < 85 && "⚠️ Weak Day. Refocus tomorrow for a strong response."}
               {breakdown.totalScore < 50 && "🔄 Bad Day. Reset tomorrow, keep moving forward."}
             </p>
           </div>
