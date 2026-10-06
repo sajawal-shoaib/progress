@@ -38,23 +38,23 @@ export const TodayCheckInView: React.FC<TodayCheckInViewProps> = ({
   const existingRecord = records[targetDate];
 
   // State initialization
-  const [workout, setWorkout] = useState<boolean>(existingRecord?.workout ?? true);
-  const [movement, setMovement] = useState<boolean>(existingRecord?.movement ?? true);
-  const [nutrition, setNutrition] = useState<boolean>(existingRecord?.nutrition ?? true);
-  const [water, setWater] = useState<boolean>(existingRecord?.water ?? true);
-  const [sleepHours, setSleepHours] = useState<number>(existingRecord?.sleepHours ?? 7.5);
+  const [workout, setWorkout] = useState<boolean>(existingRecord?.workout ?? false);
+  const [movement, setMovement] = useState<boolean>(existingRecord?.movement ?? false);
+  const [nutrition, setNutrition] = useState<boolean>(existingRecord?.nutrition ?? false);
+  const [water, setWater] = useState<boolean>(existingRecord?.water ?? false);
+  const [sleepHours, setSleepHours] = useState<number>(existingRecord?.sleepHours ?? 0);
   const [weight, setWeight] = useState<string>(existingRecord?.weight !== undefined ? String(existingRecord.weight) : '');
 
   const [scrollingMinutes, setScrollingMinutes] = useState<number>(
-    existingRecord?.scrollingMinutes ?? (existingRecord?.scrollingControlled === false ? 60 : 15)
+    existingRecord?.scrollingMinutes ?? (existingRecord?.scrollingControlled === false ? 60 : 60)
   );
-  const [gamingMinutes, setGamingMinutes] = useState<number>(existingRecord?.gamingMinutes ?? 30);
-  const [meditation, setMeditation] = useState<boolean>(existingRecord?.meditation ?? true);
-  const [reading, setReading] = useState<boolean>(existingRecord?.reading ?? true);
-  const [promisesKept, setPromisesKept] = useState<boolean>(existingRecord?.promisesKept ?? true);
+  const [gamingMinutes, setGamingMinutes] = useState<number>(existingRecord?.gamingMinutes ?? 120);
+  const [meditation, setMeditation] = useState<boolean>(existingRecord?.meditation ?? false);
+  const [reading, setReading] = useState<boolean>(existingRecord?.reading ?? false);
+  const [promisesKept, setPromisesKept] = useState<boolean>(existingRecord?.promisesKept ?? false);
 
-  const [deepWork, setDeepWork] = useState<boolean>(existingRecord?.deepWork ?? true);
-  const [deepWorkHours, setDeepWorkHours] = useState<number>(existingRecord?.deepWorkHours ?? 4);
+  const [deepWork, setDeepWork] = useState<boolean>(existingRecord?.deepWork ?? false);
+  const [deepWorkHours, setDeepWorkHours] = useState<number>(existingRecord?.deepWorkHours ?? 0);
   const [workDescription, setWorkDescription] = useState<string>(existingRecord?.workDescription ?? '');
   const [learning, setLearning] = useState<string>(existingRecord?.learning ?? '');
 
