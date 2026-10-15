@@ -1,7 +1,8 @@
 import React from 'react';
-import { Snowflake, CheckCircle2, Flame, PlusCircle } from 'lucide-react';
+import { Snowflake, CheckCircle2, Flame, PlusCircle, Cloud, CloudOff, RefreshCw } from 'lucide-react';
 import { DailyRecord } from '../../types/winterArc';
 import { StatusBadge } from '../common/StatusBadge';
+import { isSupabaseConfigured } from '../../lib/supabase';
 
 interface NavbarProps {
   todayRecord?: DailyRecord;
@@ -9,6 +10,10 @@ interface NavbarProps {
   isSavedJustNow: boolean;
   currentDayNumber: number;
   currentStreak: number;
+  onOpenAuth: () => void;
+  isLoggedIn: boolean;
+  isSyncing: boolean;
+  onSync: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -17,6 +22,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   isSavedJustNow,
   currentDayNumber,
   currentStreak,
+  onOpenAuth,
+  isLoggedIn,
+  isSyncing,
+  onSync,
 }) => {
   const formattedToday = new Date().toLocaleDateString('en-US', {
     weekday: 'short',
@@ -53,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Right side stats & CTA */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           {/* Today's Status Pill */}
           {todayRecord ? (
             <div className="hidden sm:flex items-center gap-2">
@@ -71,6 +80,43 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Flame className="w-3.5 h-3.5 fill-amber-400" />
             <span>{currentStreak}d</span>
           </div>
+
+          {/* Cloud Sync Button */}
+          {isSupabaseConfigured ? (
+            isLoggedIn ? (
+              <button
+                onClick={onSync}
+                disabled={isSyncing}
+                title="Sync with Supabase cloud"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-emerald-700/40 bg-emerald-950/30 text-emerald-400 hover:bg-emerald-900/40 transition-all cursor-pointer disabled:opacity-60"
+              >
+                {isSyncing ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Cloud className="w-3.5 h-3.5" />
+                )}
+                <span className="hidden md:inline">{isSyncing ? 'Syncing...' : 'Synced'}</span>
+              </button>
+            ) : (
+              <button
+                onClick={onOpenAuth}
+                title="Sign in to enable cloud sync"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-sky-700/40 bg-sky-950/30 text-sky-400 hover:bg-sky-900/40 transition-all cursor-pointer"
+              >
+                <Cloud className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Sign In</span>
+              </button>
+            )
+          ) : (
+            <button
+              onClick={onOpenAuth}
+              title="Supabase not configured"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-gray-700/40 bg-gray-900/30 text-gray-500 hover:bg-gray-800/40 transition-all cursor-pointer"
+            >
+              <CloudOff className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Cloud</span>
+            </button>
+          )}
 
           {/* Quick Check-in Button */}
           <button

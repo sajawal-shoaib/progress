@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
 import { Navbar } from './components/layout/Navbar';
 import { MobileNav } from './components/layout/MobileNav';
@@ -12,10 +12,12 @@ import { MilestonesView } from './components/views/MilestonesView';
 import { ProgressView } from './components/views/ProgressView';
 import { JournalView } from './components/views/JournalView';
 import { SettingsView } from './components/views/SettingsView';
+import { AuthModal } from './components/auth/AuthModal';
 
 import { NavigationTab, DailyRecord, UserSettings } from './types/winterArc';
-import { getStoredSettings, getStoredRecords, saveStoredSettings } from './utils/storage';
+import { getStoredSettings, getStoredRecords, saveStoredSettings, syncWithSupabase } from './utils/storage';
 import { getOverallArcStats } from './utils/arcStats';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavigationTab>('dashboard');
@@ -23,12 +25,43 @@ export const App: React.FC = () => {
   const [records, setRecords] = useState<Record<string, DailyRecord>>(getStoredRecords);
   const [isCheckInOpen, setIsCheckInOpen] = useState<boolean>(false);
   const [isSavedJustNow, setIsSavedJustNow] = useState<boolean>(false);
+  const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  // Sync stored state
+  const handleCloudSync = useCallback(async () => {
+    setIsSyncing(true);
+    try {
+      const { settings: syncedSettings, records: syncedRecords } = await syncWithSupabase();
+      setSettings(syncedSettings);
+      setRecords(syncedRecords);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
+
+  // Initial load + Supabase auth state listener
   useEffect(() => {
     setSettings(getStoredSettings());
     setRecords(getStoredRecords());
-  }, []);
+
+    if (isSupabaseConfigured && supabase) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) {
+          setIsLoggedIn(true);
+          handleCloudSync();
+        }
+      });
+
+      const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+        const loggedIn = Boolean(session?.user);
+        setIsLoggedIn(loggedIn);
+        if (loggedIn) handleCloudSync();
+      });
+
+      return () => listener.subscription.unsubscribe();
+    }
+  }, [handleCloudSync]);
 
   const overallStats = getOverallArcStats(records, settings);
   const todayStr = new Date().toISOString().split('T')[0];
@@ -125,6 +158,10 @@ export const App: React.FC = () => {
           isSavedJustNow={isSavedJustNow}
           currentDayNumber={overallStats.currentDayNumber}
           currentStreak={overallStats.currentStreak}
+          onOpenAuth={() => setIsAuthOpen(true)}
+          isLoggedIn={isLoggedIn}
+          isSyncing={isSyncing}
+          onSync={handleCloudSync}
         />
 
         {/* View Container */}
@@ -150,6 +187,13 @@ export const App: React.FC = () => {
           />
         </div>
       )}
+
+      {/* Supabase Auth Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onSyncTriggered={handleCloudSync}
+      />
     </div>
   );
 };
